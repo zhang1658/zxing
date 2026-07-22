@@ -248,8 +248,11 @@ public final class CameraManager {
             }
 
             int screenResolutionX = screenResolution.x;
+            int screenResolutionY = screenResolution.y;
 
-            int width = (int) (screenResolutionX * 0.6);
+            // 取较小边作为基准，确保扫描框不会超出屏幕
+            int minSize = Math.min(screenResolutionX, screenResolutionY);
+            int width = (int) (minSize * 0.6);
             int height = width;
 
 

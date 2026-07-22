@@ -21,6 +21,7 @@ import android.graphics.Point;
 import android.hardware.Camera;
 import android.util.Log;
 import android.view.Display;
+import android.view.Surface;
 import android.view.WindowManager;
 
 import java.util.regex.Pattern;
@@ -37,6 +38,7 @@ final class CameraConfigurationManager {
     private final Context context;
     private Point screenResolution;
     private Point cameraResolution;
+    private int cameraOrientation = 90; // default, will be updated from CameraInfo
 
 
 
@@ -51,6 +53,16 @@ final class CameraConfigurationManager {
         Display display = manager.getDefaultDisplay();
         screenResolution = new Point(display.getWidth(), display.getHeight());
         Log.d(TAG, "Screen resolution: " + screenResolution);
+
+        // 获取相机传感器方向（默认使用后置摄像头 ID=0）
+        Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
+        try {
+            Camera.getCameraInfo(0, cameraInfo);
+            cameraOrientation = cameraInfo.orientation;
+        } catch (Exception e) {
+            Log.w(TAG, "Failed to get camera info", e);
+        }
+        Log.d(TAG, "Camera orientation: " + cameraOrientation);
 
         Point screenResolutionForCamera = new Point();
         screenResolutionForCamera.x = screenResolution.x;
@@ -74,9 +86,20 @@ final class CameraConfigurationManager {
         parameters.setPreviewSize(cameraResolution.x, cameraResolution.y);
 
         setZoom(parameters);
-        //setSharpness(parameters);
-        //modify here
-        camera.setDisplayOrientation(90);
+
+        // 根据屏幕方向动态计算相机预览旋转角度
+        WindowManager manager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        int rotation = manager.getDefaultDisplay().getRotation();
+        int degrees = 0;
+        switch (rotation) {
+            case Surface.ROTATION_0:   degrees = 0;   break;
+            case Surface.ROTATION_90:  degrees = 90;  break;
+            case Surface.ROTATION_180: degrees = 180; break;
+            case Surface.ROTATION_270: degrees = 270; break;
+        }
+        int displayOrientation = (cameraOrientation - degrees + 360) % 360;
+        Log.d(TAG, "Display rotation: " + degrees + ", camera orientation: " + cameraOrientation + ", set display orientation: " + displayOrientation);
+        camera.setDisplayOrientation(displayOrientation);
         camera.setParameters(parameters);
     }
 
