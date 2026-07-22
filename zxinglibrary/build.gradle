@@ -1,20 +1,17 @@
 apply plugin: 'com.android.library'
 
+apply plugin: 'com.github.dcendents.android-maven'
+group = 'com.github.zhang1658'
+
 android {
-    namespace "com.yzq.zxinglibrary"
-    compileSdk 33
+    compileSdkVersion 29
 
     defaultConfig {
-        minSdk 28
-        targetSdk 33
-        versionCode 1
+        minSdkVersion 21
+        targetSdkVersion 29
+        versionCode 229
         versionName "2.2.10"
         vectorDrawables.useSupportLibrary = true
-    }
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
     }
 }
 
