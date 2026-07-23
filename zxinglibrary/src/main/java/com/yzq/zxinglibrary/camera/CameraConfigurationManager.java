@@ -64,14 +64,26 @@ final class CameraConfigurationManager {
         }
         Log.d(TAG, "Camera orientation: " + cameraOrientation);
 
+        // 计算 display orientation，确认最终预览是否旋转
+        int rotation = manager.getDefaultDisplay().getRotation();
+        int degrees = 0;
+        switch (rotation) {
+            case Surface.ROTATION_0:   degrees = 0;   break;
+            case Surface.ROTATION_90:  degrees = 90;  break;
+            case Surface.ROTATION_180: degrees = 180; break;
+            case Surface.ROTATION_270: degrees = 270; break;
+        }
+        int displayOrientation = (cameraOrientation - degrees + 360) % 360;
+        Log.d(TAG, "Display rotation: " + degrees + ", calculated display orientation: " + displayOrientation);
+
+        // 如果最终预览需要旋转（90/270），交换宽高使预览尺寸匹配旋转后的显示
         Point screenResolutionForCamera = new Point();
-        screenResolutionForCamera.x = screenResolution.x;
-        screenResolutionForCamera.y = screenResolution.y;
-
-
-        if (screenResolution.x < screenResolution.y) {
+        if (displayOrientation == 90 || displayOrientation == 270) {
             screenResolutionForCamera.x = screenResolution.y;
             screenResolutionForCamera.y = screenResolution.x;
+        } else {
+            screenResolutionForCamera.x = screenResolution.x;
+            screenResolutionForCamera.y = screenResolution.y;
         }
 
         cameraResolution = getCameraResolution(parameters, screenResolutionForCamera);
