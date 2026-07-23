@@ -10,4 +10,5 @@
     <string name="scan_failed_tip">图片解析失败，换个图片试试.</string>
 
 
+    <string name="scan_back">返回</string>
 </resources>
